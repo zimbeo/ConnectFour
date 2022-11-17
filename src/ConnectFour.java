@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.Random;
 
 public class ConnectFour {
 
@@ -48,7 +49,7 @@ public class ConnectFour {
         return true;
     }
 
-    public static void playUserTurn(Scanner scanner, char[][] gameBoard, char userTokenColor) {
+    public static boolean playUserTurn(Scanner scanner, char[][] gameBoard, char userTokenColor) {
         
         // Get the row and column that the token should be input in
         //todo: Getting the user input for playedRow and playedColumn should have some error handling in case input is not an int, I'll come back to that
@@ -61,8 +62,10 @@ public class ConnectFour {
         if (checkTurnValidity(playedRow, playedColumn, gameBoard)) {
             gameBoard[playedRow][playedColumn] = userTokenColor;
             showGameBoard(gameBoard);
+            return true;
         } else {
             System.out.println("ERROR: Your turn was invalid, try again.");
+            return false;
         }
     }
 
@@ -78,11 +81,29 @@ public class ConnectFour {
         return newTurn;
     }
 
+    public static void playComputerTurn(Scanner scanner, char[][] gameBoard, char compTokenColor) {
+        Random rand = new Random();
+        int rowUpperBound = 7;
+        int columnUpperBound = 8;
+
+        int randomRow = rand.nextInt(rowUpperBound);
+        int randomColumn = rand.nextInt(columnUpperBound);
+
+        if (checkTurnValidity(randomRow, randomColumn, gameBoard)) {
+            gameBoard[randomRow][randomColumn] = compTokenColor;
+            System.out.println("\nComputer played token in row " + randomRow + " and column " + randomColumn + "\n");
+            showGameBoard(gameBoard);
+        } else {
+            System.out.println("ERROR: Your turn was invalid, try again.");
+        }
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         char turn = 'R';
         char compTokenColor = 'Y';
         char userTokenColor = 'R';
+        boolean playedTurn;
 
         // Create and show the board for the game
         char[][] gameBoard = initializeGameBoard();
@@ -90,13 +111,16 @@ public class ConnectFour {
 
         while (true) {
             if (turn == userTokenColor) {
-                playUserTurn(scanner, gameBoard, turn);
-                turn = setTurn(turn);
+                playedTurn = playUserTurn(scanner, gameBoard, turn);
+                
+                if (playedTurn == true) {
+                    turn = setTurn(turn);
+                }
             }
 
             // This will be running the computer turn method in the future (haven't made it yet)
             if (turn == compTokenColor) {
-                playUserTurn(scanner, gameBoard, userTokenColor);
+                playComputerTurn(scanner, gameBoard, compTokenColor);
                 turn = setTurn(turn);
             }
         }
