@@ -1,4 +1,3 @@
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ConnectFour {
@@ -7,7 +6,7 @@ public class ConnectFour {
         // Initialize the game board 2d array with 6 rows + 7 columns
         char[][] gameBoard = new char[6][7];
 
-        // Go through each row and corresponding column to make each index a blank entry to start with
+        // Go through each row and corresponding column to make each index a blank entry to start
         for (int i = 0; i < gameBoard.length; ++i) {
             for (int j = 0; j < gameBoard[i].length; j++) {
                 gameBoard[i][j] = ' ';
@@ -18,7 +17,8 @@ public class ConnectFour {
     }
 
     public static void showGameBoard(char[][] gameBoard) {
-        // Show the initialized 2d array by looping through and showing each val, separate with pipe for cleanliness
+        // Show the initialized 2d array by looping through and showing each val,
+        // separate with pipe for cleanliness
         System.out.println("   0 1 2 3 4 5 6\n  ---------------");
 
         for (int i = 0; i < gameBoard.length; i++) {
@@ -48,39 +48,56 @@ public class ConnectFour {
         return true;
     }
 
+    public static void playUserTurn(Scanner scanner, char[][] gameBoard, char userTokenColor) {
+        
+        // Get the row and column that the token should be input in
+        //todo: Getting the user input for playedRow and playedColumn should have some error handling in case input is not an int, I'll come back to that
+        System.out.println("Enter the row to place your token - (0-5) ");
+        int playedRow = scanner.nextInt();
+
+        System.out.println("Enter the column to place your token - (0-6) ");
+        int playedColumn = scanner.nextInt();
+
+        if (checkTurnValidity(playedRow, playedColumn, gameBoard)) {
+            gameBoard[playedRow][playedColumn] = userTokenColor;
+            showGameBoard(gameBoard);
+        } else {
+            System.out.println("ERROR: Your turn was invalid, try again.");
+        }
+    }
+
+    public static char setTurn(char turn) {
+        char newTurn;
+
+        if (turn == 'R') {
+            newTurn = 'Y';
+        } else {
+            newTurn = 'R';
+        }
+
+        return newTurn;
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
-        char playerTurn = 'R';
-        char robotTokenColor = 'Y';
+        char turn = 'R';
+        char compTokenColor = 'Y';
         char userTokenColor = 'R';
 
-        // Create the board for the game
+        // Create and show the board for the game
         char[][] gameBoard = initializeGameBoard();
-
-        //Show the game board
         showGameBoard(gameBoard);
 
-        while (playerTurn == 'R') {
-            try {
-                // Get the row and column that the token should be input in
-                System.out.println("Enter the row to place your token - (0-5) ");
-                int playedRow = scanner.nextInt();
+        while (true) {
+            if (turn == userTokenColor) {
+                playUserTurn(scanner, gameBoard, turn);
+                turn = setTurn(turn);
+            }
 
-                System.out.println("Enter the column to place your token - (0-6) ");
-                int playedColumn = scanner.nextInt();
-
-                if (checkTurnValidity(playedRow, playedColumn, gameBoard)) {
-                    gameBoard[playedRow][playedColumn] = userTokenColor;
-                    showGameBoard(gameBoard);
-
-                    // Change it to the computers token
-                    playerTurn = 'Y';
-                } else {
-                    System.out.println("ERROR: Your turn was invalid, try again.");
-                }
-            } catch (InputMismatchException inputMismatchException) {
-                System.out.println("ERROR: You must input an integer value!");
+            // This will be running the computer turn method in the future (haven't made it yet)
+            if (turn == compTokenColor) {
+                playUserTurn(scanner, gameBoard, userTokenColor);
+                turn = setTurn(turn);
             }
         }
     }
