@@ -4,6 +4,7 @@ import java.util.Random;
 public class ConnectFour {
 
     public static char[][] initializeGameBoard() {
+
         // Initialize the game board 2d array with 6 rows + 7 columns
         char[][] gameBoard = new char[6][7];
 
@@ -18,8 +19,8 @@ public class ConnectFour {
     }
 
     public static void showGameBoard(char[][] gameBoard) {
-        // Show the initialized 2d array by looping through and showing each val,
-        // separate with pipe for cleanliness
+
+        // Show the initialized 2d array by looping through and showing each value
         System.out.println("   0 1 2 3 4 5 6\n  ---------------");
 
         for (int i = 0; i < gameBoard.length; i++) {
@@ -35,14 +36,10 @@ public class ConnectFour {
         System.out.println("   0 1 2 3 4 5 6 ");
     }
 
-    public static boolean checkTurnValidity(int row, int column, char[][] gameBoard) {
+    public static boolean checkTurnValidity(int column, char[][] gameBoard) {
 
-        // Check if column fits dimension for columns
-        if (column > gameBoard.length - 1 || column < 0) {
-            return false;
-        }
-
-        if (row > gameBoard[0].length - 1 || row < 0) {
+        // Check if column fits dimensions of the game board
+        if (column > gameBoard.length || column < 0) {
             return false;
         }
 
@@ -50,18 +47,24 @@ public class ConnectFour {
     }
 
     public static boolean playUserTurn(Scanner scanner, char[][] gameBoard, char userTokenColor) {
-        
-        // Get the row and column that the token should be input in
-        //todo: Getting the user input for playedRow and playedColumn should have some error handling in case input is not an int, I'll come back to that
-        System.out.println("Enter the row to place your token - (0-5) ");
-        int playedRow = scanner.nextInt();
 
+        // Get the column that the token should be input in
         System.out.println("Enter the column to place your token - (0-6) ");
         int playedColumn = scanner.nextInt();
 
-        if (checkTurnValidity(playedRow, playedColumn, gameBoard)) {
-            gameBoard[playedRow][playedColumn] = userTokenColor;
+        if (checkTurnValidity(playedColumn, gameBoard)) {
+
+            // If the turn was valid, loop through board, and decrement row as necessary
+            for (int row = gameBoard.length - 1; row >= 0; row--){
+                if(gameBoard[row][playedColumn] == ' '){
+                    gameBoard[row][playedColumn] = userTokenColor;
+                    break;
+                }
+            }
+
             showGameBoard(gameBoard);
+
+            // Return true so main method knows turn was successfully played
             return true;
         } else {
             System.out.println("ERROR: Your turn was invalid, try again.");
@@ -82,19 +85,25 @@ public class ConnectFour {
     }
 
     public static void playComputerTurn(Scanner scanner, char[][] gameBoard, char compTokenColor) {
-        Random rand = new Random();
-        int rowUpperBound = 7;
-        int columnUpperBound = 8;
 
-        int randomRow = rand.nextInt(rowUpperBound);
+        Random rand = new Random();
+
+        // Generate a random column that the computer will play, set bound to 8 as there is 7 columns
+        int columnUpperBound = 8;
         int randomColumn = rand.nextInt(columnUpperBound);
 
-        if (checkTurnValidity(randomRow, randomColumn, gameBoard)) {
-            gameBoard[randomRow][randomColumn] = compTokenColor;
-            System.out.println("\nComputer played token in row " + randomRow + " and column " + randomColumn + "\n");
+        if (checkTurnValidity(randomColumn, gameBoard)) {
+
+            // If the turn was valid, loop through board, and decrement row as necessary
+            for (int row = gameBoard.length - 1; row >= 0; row--){
+                if(gameBoard[row][randomColumn] == ' '){
+                    gameBoard[row][randomColumn] = compTokenColor;
+                    System.out.println("\nComputer played token in row " + row + " and column " + randomColumn + "\n");
+                    break;
+                }
+            }
+
             showGameBoard(gameBoard);
-        } else {
-            System.out.println("ERROR: Your turn was invalid, try again.");
         }
     }
 
@@ -112,15 +121,17 @@ public class ConnectFour {
         while (true) {
             if (turn == userTokenColor) {
                 playedTurn = playUserTurn(scanner, gameBoard, turn);
-                
-                if (playedTurn == true) {
+
+                // Validates if the play was actually successful
+                if (playedTurn) {
                     turn = setTurn(turn);
                 }
             }
 
-            // This will be running the computer turn method in the future (haven't made it yet)
             if (turn == compTokenColor) {
                 playComputerTurn(scanner, gameBoard, compTokenColor);
+
+                // Assume the computer played a valid turn since it plays a random number with an upper bound
                 turn = setTurn(turn);
             }
         }
